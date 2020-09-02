@@ -5,14 +5,17 @@ import { FormsModule } from '@angular/forms';
 import { HomePage } from './home.page';
 
 import { HomePageRoutingModule } from './home-routing.module';
+import { NgZorroAntdMobileModule } from 'ng-zorro-antd-mobile';
 
 
 @NgModule({
   imports: [
-    CommonModule,
     FormsModule,
+    CommonModule,
     IonicModule,
-    HomePageRoutingModule
+    HomePageRoutingModule,
+    FormsModule,
+    NgZorroAntdMobileModule
   ],
   declarations: [HomePage]
 })

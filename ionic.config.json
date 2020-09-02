@@ -1,5 +1,7 @@
 {
   "name": "ionic-covid-tracker",
-  "integrations": {},
+  "integrations": {
+    "cordova": {}
+  },
   "type": "angular"
 }
