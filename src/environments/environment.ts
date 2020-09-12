@@ -4,7 +4,8 @@
 
 export const environment = {
   production: false,
-  baseUrl: 'http://localhost:8080/'
+  // baseUrl: 'ec2-3-128-28-225.us-east-2.compute.amazonaws.com:8080/'
+  baseUrl: 'http://localhost:8080'
 };
 
 /*

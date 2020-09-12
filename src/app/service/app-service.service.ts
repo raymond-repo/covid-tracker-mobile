@@ -8,19 +8,17 @@ import { environment } from 'src/environments/environment';
 })
 export class AppServiceService {
 
-  constructor(private http: HttpClient) { }
-
-  public getRegionSummary(region: string): Observable<any> {
-    return this.http.get(environment.baseUrl + 'app/getRegionByNameAndLatestPublishedDate', {
-      params: { name: region }
-    });
-  }
+  constructor(private httpClient: HttpClient) { }
 
   public getSummary(): Observable<any> {
-    return this.http.get(environment.baseUrl + 'app/getSummary');
+    return this.httpClient.get(environment.baseUrl + '/app/getLatestSummary');
+  }
+
+  public getQuarantineArea(): Observable<any> {
+    return this.httpClient.get(environment.baseUrl + '/app/getLatestQuarantine');
   }
 
   public getVaccineSummary(): Observable<any> {
-    return this.http.get(environment.baseUrl + 'app/getLatestVaccineSummary');
+    return this.httpClient.get(environment.baseUrl + '/app/getLatestVaccineSummary');
   }
 }

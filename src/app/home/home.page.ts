@@ -22,7 +22,9 @@ export class HomePage implements OnInit, OnDestroy, AfterViewInit {
   public currentPage = 1;
   public totalPage: number;
 
-  public isNationalCasesSummary: boolean;
+  public quarantineDate = '';
+
+  public isSummary: boolean;
 
   tabbarStyle: object = {
     position: 'fixed',
@@ -34,15 +36,19 @@ export class HomePage implements OnInit, OnDestroy, AfterViewInit {
 
   wide: string;
   dateRelease: string;
-
   totalCase: string;
   newCase: string;
   activeCase: string;
+  newActiveCase: string;
   recovered: string;
+  newRecovered: string;
   died: string;
+  newDied: string;
 
   paginatedListOfVaccineCandidate = [];
   listOfVaccineCandidate = [];
+  regionCases = [];
+  paginatedRegionCases = [];
 
   // pagination
   locale = {
@@ -76,17 +82,18 @@ export class HomePage implements OnInit, OnDestroy, AfterViewInit {
   recoveredTimeline = [];
   diedTimeline = [];
 
+  quarantineAreas = [];
+
   constructor(
-    private picker: PickerService,
     private platform: Platform,
     private appServiceService: AppServiceService) {
   }
 
   ngOnInit(): void {
-    this.onChange(1);
     this.defaultValues();
     this.initSummaryData();
     this.initVaccineData();
+    this.initQuarantineData();
   }
 
   ionViewDidEnter() {
@@ -95,16 +102,29 @@ export class HomePage implements OnInit, OnDestroy, AfterViewInit {
 
   private initSummaryData(): void {
     this.appServiceService.getSummary().pipe(filter(res => !!res)).subscribe(res => {
-      this.dateRelease = res.datePublished;
+      this.dateRelease = res.date;
       this.newCase = res.newCase;
-      this.totalCase = res.totalCase;
-      this.activeCase = res.activeCase;
-      this.recovered = res.recovered;
-      this.died = res.died;
+      this.totalCase = res.totalCases;
+      this.newActiveCase = res.newActive;
+      this.activeCase = res.active;
+      this.newRecovered = res.newRecoveries;
+      this.recovered = res.recoveries;
+      this.newDied = res.newDeaths;
+      this.died = res.totalDeaths;
       this.totalCasesTimeline = res.totalCasesTimeline;
       this.recoveredTimeline = res.recoveredTimeline;
       this.diedTimeline = res.diedTimeline;
       this.createBarChart();
+      this.regionCases = res.region;
+      this.initTotalPage(this.regionCases.length, 10);
+      this.onChange(1);
+    });
+  }
+
+  private initQuarantineData(): void {
+    this.appServiceService.getQuarantineArea().pipe(filter(res => !!res)).subscribe(res => {
+      this.quarantineDate = res.date;
+      this.quarantineAreas = res.quarantineListResponse;
     });
   }
 
@@ -120,9 +140,13 @@ export class HomePage implements OnInit, OnDestroy, AfterViewInit {
     this.totalCase = '0';
     this.newCase = '0';
     this.activeCase = '0';
+    this.newActiveCase = '0';
     this.recovered = '0';
+    this.newRecovered = '0';
     this.died = '0';
+    this.newDied = '0';
     this.name = 'Filter by region';
+    this.isSummary = true;
   }
 
   ngAfterViewInit() {
@@ -140,10 +164,12 @@ export class HomePage implements OnInit, OnDestroy, AfterViewInit {
     if (pressParam.index === 0) {
       this.wide = 'Nationwide Cases Data';
       this.initSummaryData();
-      this.name = 'Filter by region';
+      this.initQuarantineData();
+      this.isSummary = true;
     }
     else if (pressParam.index === 1) {
       this.wide = 'Worldwide Data';
+      this.isSummary = false;
       this.initVaccineData();
       this.initTotalPage(this.listOfVaccineCandidate.length, 15);
       this.onChange(1);
@@ -152,49 +178,12 @@ export class HomePage implements OnInit, OnDestroy, AfterViewInit {
     this.selectedIndex = pressParam.index;
   }
 
-  private getResult(result): string {
-    const value = [];
-    let temp = '';
-    result.forEach(item => {
-      value.push(item.label || item);
-      temp += item.label || item;
-    });
-    return value.map(v => v).join(',');
-  }
-
-  public showPicker(): void {
-    this.picker.showPicker(
-      {
-        title: 'Region',
-        data: this.listOfRegion,
-        dismissText: 'Cancel',
-        okText: 'Select'
-      },
-      result => {
-        this.name = 'Filter by region';
-        if (!!this.getResult(result)) {
-          this.name = this.getResult(result);
-          this.appServiceService.getRegionSummary(this.name).pipe(filter(res => !!res)).subscribe(res => {
-            this.dateRelease = res.datePublished;
-            this.newCase = res.newCase;
-            this.totalCase = res.totalCase;
-            this.activeCase = res.activeCase;
-            this.recovered = res.recovered;
-            this.died = res.died;
-            this.totalCasesTimeline = res.totalCasesTimeline;
-            this.recoveredTimeline = res.recoveredTimeline;
-            this.diedTimeline = res.diedTimeline;
-            this.createBarChart();
-          });
-        } else {
-          this.initSummaryData();
-        }
-      }
-    );
-  }
-
   public onChange(event: any) {
-    this.paginatedListOfVaccineCandidate = this.paginate(event, this.listOfVaccineCandidate, 15);
+    if (this.isSummary) {
+      this.paginatedRegionCases = this.paginate(event, this.regionCases, 10);
+    } else {
+      this.paginatedListOfVaccineCandidate = this.paginate(event, this.listOfVaccineCandidate, 15);
+    }
   }
 
   private paginate(page: any, listToPaginate: any[], itemPerpage: number): any[] {

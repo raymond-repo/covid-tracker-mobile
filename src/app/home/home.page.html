@@ -63,22 +63,16 @@
     </div>
 
     <div class="row">
-      <div class="dropdown">
-        <div Button (click)="showPicker()">{{ name }}</div>
-      </div>
-    </div>
-
-    <div class="row">
       <div class="column">
         <div class="card" style="background-color:#ff4d4f;">
           <div class="header">
             <h3>Total Cases</h3>
           </div>
           <div class="content">
-            <h1>{{totalCase}}</h1>
+            <h1>{{totalCase | number}}</h1>
           </div>
           <div class="footer">
-            <p>+ {{newCase}}</p>
+            <p>+ {{newCase | number}}</p>
           </div>
         </div>
       </div>
@@ -89,7 +83,10 @@
             <h3>Active Cases</h3>
           </div>
           <div class="content">
-            <h1>{{activeCase}}</h1>
+            <h1>{{activeCase | number}}</h1>
+          </div>
+          <div class="footer">
+            <p>+ {{newActiveCase | number}}</p>
           </div>
         </div>
       </div>
@@ -102,7 +99,10 @@
             <h3>Recovered</h3>
           </div>
           <div class="content">
-            <h1>{{recovered}}</h1>
+            <h1>{{recovered | number}}</h1>
+          </div>
+          <div class="footer">
+            <p>+ {{newRecovered | number}}</p>
           </div>
         </div>
       </div>
@@ -112,7 +112,10 @@
             <h3>Died</h3>
           </div>
           <div class="content">
-            <h1>{{died}}</h1>
+            <h1>{{died | number}}</h1>
+          </div>
+          <div class="footer">
+            <p>+ {{newDied | number}}</p>
           </div>
         </div>
       </div>
@@ -121,5 +124,54 @@
     <div class="row">
       <canvas #barChart></canvas>
     </div>
+
+    <div class="row-title">
+      <h3 style="text-align:center">Regional Cases</h3>
+    </div>
+
+    <div class="row">
+      <div class="data">
+        <table>
+          <tr>
+            <th>Region</th>
+            <th style="text-align:center">Cases</th>
+          </tr>
+          <tr *ngFor="let item of paginatedRegionCases">
+            <td>{{item.name}}</td>
+            <td style="text-align:center">{{item.cases}}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <div *ngIf="this.paginatedRegionCases.length > 5" class="row">
+      <Pagination [total]="totalPage" [current]="currentPage" [locale]="locale" (onChange)="onChange($event)">
+      </Pagination>
+    </div>
+
+    <div class="row-title">
+      <h3 style="text-align:center">List of Quarantine Area</h3>
+      <p style="text-align:center">As of {{ quarantineDate }}</p>
+    </div>
+
+    <div class="row">
+      <div class="data">
+        <table>
+          <tr>
+            <th>Area</th>
+            <th>Status</th>
+            <th>Start Date</th>
+            <th>Due Date</th>
+          </tr>
+          <tr *ngFor="let item of quarantineAreas">
+            <td>{{item.area}}</td>
+            <td>{{item.status}}</td>
+            <td>{{item.startDate}}</td>
+            <td>{{item.dueDate}}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
   </div>
 </ng-template>
